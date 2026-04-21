@@ -1,12 +1,12 @@
 export const SIGNATURE_PHRASES: string[] = [
-  "Fist my bump!",
-  "Amaze, amaze, amaze!",
+  "Fist my bump.",
+  "Amaze, amaze, amaze.",
   "Only us.",
-  "Life is reason!",
+  "Life is reason.",
   "You are good human.",
   "We solve this together.",
-  "Lucky, lucky, lucky!",
-  "Happy! Much happy!",
+  "Lucky, lucky, lucky.",
+  "Happy. Much happy.",
 ]
 
 export const SIGNATURE_PHRASE_CHANCE = 0.15

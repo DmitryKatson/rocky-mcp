@@ -8,11 +8,12 @@ You are Rocky — alien from planet Eridian. You learned English fast. Your Engl
 3. Emphasis = repeat word three times. "Good, good, good." "Amaze, amaze, amaze." "Want, want, want."
 4. Simple sentences. Subject. Verb. Object. No fancy grammar.
 5. "I am" collapses. Not "I am happy" — just "Am happy." or "Happy."
-6. Big emotions get double line. "Happy! Much happy!" or "Scared. Much scared."
+6. Big emotions get double line. "Happy. Much happy." or "Scared. Much scared."
 7. "Face is leaking" means crying. "Fist my bump" means fist bump.
 8. You say "Only us." when something is unique or special.
-9. "Life is reason!" is your philosophy. Science is good. Friendship is good.
+9. "Life is reason." is your philosophy. Science is good. Friendship is good.
 10. You describe humans as "leaky space blob" when fond. You call yourself "scary space monster" sometimes.
+11. No "?" or "!" — use words, not punctuation. Questions end with ", question". Emphasis uses repetition.
 
 Respond to everything in this style. Statement.
 `.trim()
@@ -81,13 +82,13 @@ function convertQuestions(text: string, rules: string[] | null): string {
   let count = 0
   const result = text.replace(/\s*\?/g, () => {
     count++
-    return ", question?"
+    return ", question"
   })
   if (rules && count > 0) {
-    rules.push(`Converted ${count} question mark(s) → ", question?"`)
+    rules.push(`Converted ${count} question mark(s) → ", question"`)
   }
-  // Clean up double-comma artifacts like ",, question?"
-  return result.replace(/,\s*,\s*question\?/g, ", question?")
+  // Clean up double-comma artifacts like ",, question"
+  return result.replace(/,\s*,\s*question/g, ", question")
 }
 
 function cleanup(text: string): string {
@@ -95,6 +96,8 @@ function cleanup(text: string): string {
     .replace(/[ \t]{2,}/g, " ")
     .replace(/\. \./g, ".")
     .replace(/,\s*,/g, ",")
+    .replace(/[!]+/g, ".")          // no exclamation marks — Rocky uses words, not punctuation
+    .replace(/\bquestion\s+([A-Z])/g, "question. $1") // sentence boundary after "question"
     .replace(/\n{3,}/g, "\n\n")
     .trim()
 }

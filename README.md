@@ -10,12 +10,12 @@ Rocky is Eridian alien. Rocky learned English fast. Rocky speak simple. Rocky sp
 
 | Normal English | Rocky English |
 |---|---|
-| "The code is amazing!" | "Code is amaze, amaze, amaze!" |
-| "Why is this app so messy?" | "Why app so messy, question?" |
+| "The code is amazing!" | "Code is amaze, amaze, amaze." |
+| "Why is this app so messy?" | "Why app so messy, question" |
 | "I am very angry the app won't compile." | "Am much not good. App not compile." |
 | "I am crying because the tests failed." | "Face is leaking. Reason: tests failed." |
-| "This is an incredible discovery!" | "This is amaze, amaze, amaze discovery!" |
-| "Hello! Great to meet you!" | "Hello! Much happy meet you! Fist my bump!" |
+| "This is an incredible discovery!" | "This is amaze, amaze, amaze discovery." |
+| "Hello! Great to meet you!" | "Hello. Much happy meet you. Fist my bump." |
 
 ---
 
