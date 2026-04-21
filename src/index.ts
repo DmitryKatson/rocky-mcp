@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { randomUUID } from "crypto"
 import express from "express"
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js"
 import { createServer } from "./server.ts"
@@ -9,36 +8,28 @@ app.use(express.json())
 
 const PORT = Number(process.env.PORT ?? 3000)
 
-const sessions = new Map<string, StreamableHTTPServerTransport>()
-
 app.get("/", (_req, res) => {
   res.json({ status: "ok", name: "rocky-language-mcp", version: "1.0.0" })
 })
 
-app.all("/mcp", async (req, res) => {
-  const sessionId = req.headers["mcp-session-id"] as string | undefined
+// Client opens SSE stream for server-push notifications — we have none, so just keep it open
+app.get("/mcp", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream")
+  res.setHeader("Cache-Control", "no-cache")
+  res.setHeader("Connection", "keep-alive")
+  res.flushHeaders()
+  req.on("close", () => res.end())
+})
 
-  if (sessionId && sessions.has(sessionId)) {
-    await sessions.get(sessionId)!.handleRequest(req, res, req.body)
-    return
-  }
-
-  if (req.method !== "POST") {
-    res.status(404).json({ error: "Session not found" })
-    return
-  }
-
+// Stateless: each POST creates a fresh transport + server pair
+app.post("/mcp", async (req, res) => {
   const transport = new StreamableHTTPServerTransport({
-    sessionIdGenerator: () => randomUUID(),
-    onsessioninitialized: (id) => sessions.set(id, transport),
+    sessionIdGenerator: undefined,
   })
-  transport.onclose = () => {
-    for (const [id, t] of sessions) if (t === transport) sessions.delete(id)
-  }
-
   const server = createServer()
   await server.connect(transport)
   await transport.handleRequest(req, res, req.body)
+  res.on("finish", () => server.close())
 })
 
 app.listen(PORT, () => {
