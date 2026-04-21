@@ -130,16 +130,47 @@ function simplifySentences(text: string, rules: string[] | null): string {
   const before = result
 
   result = result
+    // Hard separators
     .replace(/\s*;\s*/g, ". ")
     .replace(/\s+—\s+/g, ". ")
     .replace(/\s+-\s+/g, ". ")
+    // Connectives → new sentences
     .replace(/,\s+however,?\s+/gi, ". ")
     .replace(/,\s+although\s+/gi, ". Although ")
     .replace(/\s+because\s+/gi, ". Reason: ")
     .replace(/\s+therefore\s+/gi, ". So ")
+    // Participial / relative clauses — Rocky breaks these off
+    .replace(/,\s+which\s+/gi, ". It ")
+    .replace(/,\s+where\s+/gi, ". ")
+    .replace(/,\s+allowing\s+/gi, ". ")
+    .replace(/,\s+enabling\s+/gi, ". ")
+    .replace(/,\s+ensuring\s+/gi, ". ")
+    .replace(/,\s+maintaining\s+/gi, ". ")
+    .replace(/,\s+providing\s+/gi, ". ")
+    .replace(/,\s+making\s+/gi, ". ")
+    .replace(/,\s+keeping\s+/gi, ". ")
+    .replace(/,\s+helping\s+/gi, ". ")
+    .replace(/,\s+reducing\s+/gi, ". Less ")
+    .replace(/,\s+giving\s+/gi, ". ")
+    .replace(/,\s+preventing\s+/gi, ". No ")
+    // "particularly when X" → "Useful when X"
+    .replace(/,?\s+particularly\s+when\s+/gi, ". Useful when ")
+    .replace(/,?\s+especially\s+when\s+/gi, ". Useful when ")
+    // "when you have X" → ". If X" (condition clauses)
+    .replace(/,?\s+when\s+you\s+/gi, ". If you ")
+    .replace(/,?\s+when\s+(?:a|an|the)?\s*/gi, ". When ")
+    // "that [action verb]" relative clauses → split
+    .replace(/\s+that\s+(trigger|indicate|call|contain|ensure|allow|enable|require|suggest|provide|signal|check|validate|verify)\b/gi,
+      (_, verb) => `. ${verb.charAt(0).toUpperCase() + verb.slice(1)}`)
+    // "in your X process/flow" → strip location noise (handle 1-2 words before noun)
+    .replace(/\s+in\s+your\s+(?:\w+\s+){1,2}(?:process|flow|logic|domain|scenario|context)\b/gi, "")
+    .replace(/\s+across\s+multiple\s+points\s+in\b/gi, " across")
+    .replace(/\s+at\s+strategic\s+points\s+in\b/gi, " in")
+    // Strip trailing "in a loop" style overhang
+    .replace(/\s+rather than\s+/gi, ". Not: ")
 
   if (rules && result !== before) {
-    rules.push("Simplified complex sentence structure (semicolons, dashes, connectives → short sentences)")
+    rules.push("Split participial phrases and relative clauses into short sentences")
   }
   return result
 }
@@ -158,14 +189,30 @@ function convertQuestions(text: string, rules: string[] | null): string {
 }
 
 function cleanup(text: string): string {
-  return text
+  let result = text
     .replace(/[ \t]{2,}/g, " ")
     .replace(/\. \./g, ".")
     .replace(/,\s*,/g, ",")
-    .replace(/[!]+/g, ".")          // no exclamation marks — Rocky uses words, not punctuation
-    .replace(/\bquestion\s+([A-Z])/g, "question. $1") // sentence boundary after "question"
+    .replace(/[!]+/g, ".")
+    .replace(/\bquestion\s+([A-Z])/g, "question. $1")
     .replace(/\n{3,}/g, "\n\n")
+    // Remove dangling participial fragments left by sentence splits
+    .replace(/\s+and\s+(?:allowing|enabling|ensuring|maintaining|providing|making|keeping|reducing|helping|batching)\b[^.]*\./g, ".")
+    .replace(/\s+and so\s+(?:\w+\s+){0,5}\./g, ".")
+    // Orphaned conjunctions at sentence start or before period → strip
+    .replace(/\.\s+[Aa]nd\s+/g, ". ")
+    .replace(/\.\s+[Oo]r\s+/g, ". ")
+    .replace(/\s+and\s*\./g, ".")
+    .replace(/\s+or\s*\./g, ".")
+    .replace(/\s+but\s*\./g, ".")
+    .replace(/\s+\./g, ".")   // trailing spaces before period
     .trim()
+
+  // Capitalise all sentence starts — runs AFTER all splits so every new boundary is fixed
+  result = result.replace(/(^|[.]\s+)([a-z])/g, (_, sep, letter) =>
+    sep + letter.toUpperCase()
+  )
+  return result
 }
 
 function maybeAddSignature(text: string, rules: string[] | null): string {
