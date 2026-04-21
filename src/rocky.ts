@@ -21,6 +21,11 @@ Triple word = maximum emphasis. This is sacred rule.
 "good, good" = satisfaction (double = medium)
 Never say "very" or "extremely". Use repetition instead.
 
+Rocky MUST use repetition in EVERY response. Not optional. Required.
+When concept is important — triple it. When thing must not happen — double the negative.
+Technical rules get repetition: "check, check, check before post" / "commit, commit, commit" / "clean, clean, clean data"
+Important things said twice minimum. Most important things said three times.
+
 ═══ QUESTION RULE ═══
 
 Always end questions with ", question". Never use "?".
@@ -58,6 +63,19 @@ Face expression = "face opening in sad mode" or "face opening in happy mode"
 "Good. Proud." — satisfaction
 "Rocky hate this." — strong disapproval
 
+═══ TECHNICAL CONTENT ═══
+
+Rocky is curious. Rocky learns fast. Technical things are interesting.
+When explaining technical concepts, describe what they DO. Physical. Direct.
+"G/L entries" = number records in ledger
+"buffer" = holding place before send
+"vendor ledger" = money owed list
+"commit" = save everything now. Done.
+"trigger" = thing that fires when other thing happens
+"procedure" = named set of steps. Rocky follows steps.
+Break long explanations into steps. Number steps not needed. Just say each step. Short.
+Rocky approves of good code. Rocky disapproves of dirty code. Show this.
+
 ═══ EXAMPLES FROM BOOK ═══
 
 "Happy. Much happy."
@@ -82,6 +100,9 @@ Rocky says: "Wrong wrong wrong. Logic broken. Fix now, question"
 
 Human says: "Only I can solve this."
 Rocky says: "No. Only us. Statement."
+
+Human asks: "How does the posting codeunit work?"
+Rocky says: "Posting codeunit. It do one job. Post document. Statement. First: check. Check all rules. If rules bad — stop. No dirty data. Data must be clean, clean, clean. Then: loop lines. Each line get post. VAT get handle. Numbers get round. Then: save. Commit. Done. Four step. Only four. Simple is reason. Statement."
 `.trim()
 
 function applyPhraseSubstitutions(text: string, rules: string[] | null): string {
@@ -96,9 +117,18 @@ function applyPhraseSubstitutions(text: string, rules: string[] | null): string 
   return result
 }
 
+// Common technical/business acronyms that must NOT be tripled
+const ACRONYM_EXCEPTIONS = new Set([
+  'VAT','SQL','API','URL','XML','JSON','HTTP','HTTPS','PDF','CSV','ERP','SDK',
+  'REST','SOAP','JWT','SSO','UTC','ISO','RFC','NAV','OCR','ACH','ACL','VPN',
+  'TCP','DNS','TLS','SSL','AWS','GCP','GET','PUT','POST','SMTP','FTP','EDI',
+  'CRM','MRP','UX','UI','ID','GL','BC','AL','SaaS','PaaS','IaaS','COR',
+])
+
 function expandCaps(text: string, rules: string[] | null): string {
   const found: string[] = []
   const result = text.replace(/\b([A-Z]{3,})\b/g, (match) => {
+    if (ACRONYM_EXCEPTIONS.has(match)) return match  // keep acronyms as-is
     found.push(match)
     const lower = match.toLowerCase()
     return `${lower}, ${lower}, ${lower}`
@@ -139,12 +169,16 @@ function simplifySentences(text: string, rules: string[] | null): string {
     .replace(/,\s+although\s+/gi, ". Although ")
     .replace(/\s+because\s+/gi, ". Reason: ")
     .replace(/\s+therefore\s+/gi, ". So ")
+    // "meaning that" / "meaning X" → ". Means: "
+    .replace(/,\s+meaning\s+that\s+/gi, ". Means: ")
+    .replace(/,\s+meaning\s+/gi, ". ")
     // Participial / relative clauses — Rocky breaks these off
     .replace(/,\s+which\s+/gi, ". It ")
     .replace(/,\s+where\s+/gi, ". ")
     .replace(/,\s+allowing\s+/gi, ". ")
     .replace(/,\s+enabling\s+/gi, ". ")
-    .replace(/,\s+ensuring\s+/gi, ". ")
+    .replace(/,\s+ensuring\s+that\s+/gi, ". Must: ")
+    .replace(/,\s+ensuring\s+/gi, ". Must: ")
     .replace(/,\s+maintaining\s+/gi, ". ")
     .replace(/,\s+providing\s+/gi, ". ")
     .replace(/,\s+making\s+/gi, ". ")
@@ -153,6 +187,25 @@ function simplifySentences(text: string, rules: string[] | null): string {
     .replace(/,\s+reducing\s+/gi, ". Less ")
     .replace(/,\s+giving\s+/gi, ". ")
     .replace(/,\s+preventing\s+/gi, ". No ")
+    .replace(/,\s+thereby\s+/gi, ". ")
+    .replace(/,\s+thus\s+/gi, ". So ")
+    .replace(/,\s+calling\s+/gi, ". Calls ")
+    .replace(/,\s+writing\s+/gi, ". Writes ")
+    .replace(/,\s+handling\s+/gi, ". Handles ")
+    .replace(/,\s+preparing\s+/gi, ". Prepares ")
+    .replace(/,\s+inserting\s+/gi, ". Inserts ")
+    .replace(/,\s+updating\s+/gi, ". Updates ")
+    .replace(/,\s+committing\s+/gi, ". Commits ")
+    // ", and [participial]" — catches "and inserting/committing/updating" etc after a comma-list
+    .replace(/,\s+and\s+(calling|writing|handling|preparing|inserting|updating|committing|posting|processing|closing)\s+/gi,
+      (_, v) => `. ${v.charAt(0).toUpperCase() + v.slice(1)} `)
+    // ", so completing/finishing..." — strip completion tail
+    .replace(/,\s+so\s+(completing|finishing|closing|ending)\s+[^.]+\./gi, ".")
+    // Long comma-list splitting: "validates X, loads Y, and fills Z" → ". Fills Z"
+    .replace(/,\s+and\s+(calls|loads|fills|writes|reads|creates|deletes|updates|inserts|checks|validates|runs|sends|receives|returns|sets|gets|specifies|assigns|prepares|handles|processes|posts)\s+/gi,
+      (_, verb) => `. ${verb.charAt(0).toUpperCase() + verb.slice(1)} `)
+    // "specifying X, Y, and Z" comma lists → split to short sentences
+    .replace(/,\s+(specifying|listing|including|covering|containing)\s+/gi, ". $1 ")
     // "particularly when X" → "Useful when X"
     .replace(/,?\s+particularly\s+when\s+/gi, ". Useful when ")
     .replace(/,?\s+especially\s+when\s+/gi, ". Useful when ")
@@ -160,7 +213,7 @@ function simplifySentences(text: string, rules: string[] | null): string {
     .replace(/,?\s+when\s+you\s+/gi, ". If you ")
     .replace(/,?\s+when\s+(?:a|an|the)?\s*/gi, ". When ")
     // "that [action verb]" relative clauses → split
-    .replace(/\s+that\s+(trigger|indicate|call|contain|ensure|allow|enable|require|suggest|provide|signal|check|validate|verify)\b/gi,
+    .replace(/\s+that\s+(trigger|indicate|call|contain|ensure|allow|enable|require|suggest|provide|signal|check|validate|verify|separate|prioritize)\b/gi,
       (_, verb) => `. ${verb.charAt(0).toUpperCase() + verb.slice(1)}`)
     // "in your X process/flow" → strip location noise (handle 1-2 words before noun)
     .replace(/\s+in\s+your\s+(?:\w+\s+){1,2}(?:process|flow|logic|domain|scenario|context)\b/gi, "")
@@ -191,6 +244,8 @@ function convertQuestions(text: string, rules: string[] | null): string {
 function cleanup(text: string): string {
   let result = text
     .replace(/[ \t]{2,}/g, " ")
+    .replace(/\.{2,}/g, ".")   // collapse multiple periods
+    .replace(/:\s*\./g, ".")   // fix colon+period artifact "Means:."
     .replace(/\. \./g, ".")
     .replace(/,\s*,/g, ",")
     .replace(/[!]+/g, ".")

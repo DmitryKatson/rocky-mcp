@@ -122,6 +122,28 @@ export const PHRASE_SUBSTITUTIONS: Array<[RegExp, string]> = [
   [/\bincrementally\b/gi, "step by step"],
   [/\bappropriately\b/gi, "right"],
 
+  // Rocky reactions to complexity
+  [/\bextensively\b/gi, "much"],
+  [/\bdelegates? to\b/gi, "sends to"],
+  [/\biterates? over\b/gi, "loops over"],
+  [/\bcannot be recovered from\b/gi, "no recovery"],
+  [/\bdepending on whether\b/gi, "if"],
+  [/\bonce all\b/gi, "after all"],
+  [/\bthereby\b/gi, "so"],
+  [/\boptionally\b/gi, "maybe"],
+  [/\bcommits? the transaction\b/gi, "commit. Done."],
+  [/\bdata integrity\b/gi, "clean data"],
+  [/\bhard-stop\b/gi, "no-recover"],
+  [/\bunrecoverable\b/gi, "no-fix"],
+  [/\bflush(?:es|ed)?\b/gi, "clear"],
+  [/\bprioritiz(?:es?|ing)\b/gi, "puts first"],
+  [/\bcontextual metadata\b/gi, "context data"],
+  [/\bpush(?:es|ed)? onto (?:a |the )?stack\b/gi, "push to stack"],
+  [/\bpop(?:s|ped)? (?:off |from )?(?:a |the )?stack\b/gi, "pop from stack"],
+  // Sentence-start "In Business Central" → "BC:" (capital I only, not mid-sentence)
+  [/\bIn Business Central,?\s*/g, "BC: "],
+  [/\bIn Microsoft Dynamics[^,\n]*,?\s*/g, "BC: "],
+
   // Verbose verb phrases
   [/\s+and\s+allowing (?:you|users) to\b[^,.]*/gi, ""],
   [/[,\s]+allowing (?:you|users) to\b[^,.]*/gi, ""],
