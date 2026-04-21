@@ -56,7 +56,7 @@ Returns a system prompt that makes the AI speak like Rocky for the entire conver
 ### Claude Code (remote)
 
 ```bash
-claude mcp add --transport http rocky-mcp https://rocky-mcp-hlqw.onrender.com/mcp
+claude mcp add --transport http rocky-mcp https://rocky-mcp.onrender.com/mcp
 ```
 
 ### Claude Desktop
@@ -68,7 +68,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
   "mcpServers": {
     "rocky-mcp": {
       "type": "http",
-      "url": "https://rocky-mcp-hlqw.onrender.com/mcp"
+      "url": "https://rocky-mcp.onrender.com/mcp"
     }
   }
 }
