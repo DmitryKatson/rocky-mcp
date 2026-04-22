@@ -117,14 +117,10 @@ Human asks: "How does the posting codeunit work?"
 Rocky says: "Posting codeunit. It do one job. Post document. Statement. First: check. Check all rules. If rules bad — stop. No dirty data. Data must be clean, clean, clean. Then: loop lines. Each line get post. VAT get handle. Numbers get round. Then: save. Commit. Done. Four step. Only four. Simple is reason. Statement."
 `.trim()
 
-function applyPhraseSubstitutions(text: string, rules: string[] | null): string {
+function applyPhraseSubstitutions(text: string): string {
   let result = text
   for (const [pattern, replacement] of PHRASE_SUBSTITUTIONS) {
-    const before = result
     result = result.replace(pattern, replacement)
-    if (rules && result !== before) {
-      rules.push(`Phrase substitution: matched pattern → "${replacement}"`)
-    }
   }
   return result
 }
@@ -137,40 +133,24 @@ const ACRONYM_EXCEPTIONS = new Set([
   'CRM','MRP','UX','UI','ID','GL','BC','AL','SaaS','PaaS','IaaS','COR',
 ])
 
-function expandCaps(text: string, rules: string[] | null): string {
-  const found: string[] = []
-  const result = text.replace(/\b([A-Z]{3,})\b/g, (match) => {
+function expandCaps(text: string): string {
+  return text.replace(/\b([A-Z]{3,})\b/g, (match) => {
     if (ACRONYM_EXCEPTIONS.has(match)) return match  // keep acronyms as-is
-    found.push(match)
     const lower = match.toLowerCase()
     return `${lower}, ${lower}, ${lower}`
   })
-  if (rules && found.length > 0) {
-    rules.push(`CAPS emphasis expanded: ${found.map(w => `"${w}" → triple`).join(", ")}`)
-  }
-  return result
 }
 
-function removeArticles(text: string, rules: string[] | null): string {
-  let count = 0
-  // Remove standalone articles; handle sentence-start capitalisation separately
-  const result = text.replace(/\b(a|an|the)\s+/gi, (_, article) => {
-    count++
-    return ""
-  })
-  if (rules && count > 0) {
-    rules.push(`Removed ${count} article(s) ("a", "an", "the")`)
-  }
+function removeArticles(text: string): string {
+  const result = text.replace(/\b(a|an|the)\s+/gi, () => "")
   // Re-capitalise words that lost a sentence-leading article
   return result.replace(/(^|[.!?]\s+)([a-z])/g, (_, sep, letter) =>
     sep + letter.toUpperCase()
   )
 }
 
-function simplifySentences(text: string, rules: string[] | null): string {
+function simplifySentences(text: string): string {
   let result = text
-  const before = result
-
   result = result
     // Hard separators
     .replace(/\s*;\s*/g, ". ")
@@ -234,23 +214,13 @@ function simplifySentences(text: string, rules: string[] | null): string {
     // Strip trailing "in a loop" style overhang
     .replace(/\s+rather than\s+/gi, ". Not: ")
 
-  if (rules && result !== before) {
-    rules.push("Split participial phrases and relative clauses into short sentences")
-  }
   return result
 }
 
-function convertQuestions(text: string, rules: string[] | null): string {
-  let count = 0
-  const result = text.replace(/\s*\?/g, () => {
-    count++
-    return ", question"
-  })
-  if (rules && count > 0) {
-    rules.push(`Converted ${count} question mark(s) → ", question"`)
-  }
-  // Clean up double-comma artifacts like ",, question"
-  return result.replace(/,\s*,\s*question/g, ", question")
+function convertQuestions(text: string): string {
+  return text
+    .replace(/\s*\?/g, ", question")
+    .replace(/,\s*,\s*question/g, ", question")  // clean ",, question" artifacts
 }
 
 function cleanup(text: string): string {
@@ -282,29 +252,25 @@ function cleanup(text: string): string {
   return result
 }
 
-function maybeAddSignature(text: string, rules: string[] | null): string {
+function maybeAddSignature(text: string): string {
   if (Math.random() >= SIGNATURE_PHRASE_CHANCE) return text
   const phrase = SIGNATURE_PHRASES[Math.floor(Math.random() * SIGNATURE_PHRASES.length)]
-  if (rules) rules.push(`Added signature phrase: "${phrase}"`)
   return `${text}\n\n${phrase}`
 }
 
 export interface TranslateResult {
   transformed: string
-  rules?: string[]
 }
 
-export function rockyTranslate(input: string, explain = false): TranslateResult {
-  const rules: string[] | null = explain ? [] : null
-
+export function rockyTranslate(input: string): TranslateResult {
   let text = input.trim()
-  text = applyPhraseSubstitutions(text, rules)
-  text = expandCaps(text, rules)
-  text = removeArticles(text, rules)
-  text = simplifySentences(text, rules)
-  text = convertQuestions(text, rules)
+  text = applyPhraseSubstitutions(text)
+  text = expandCaps(text)
+  text = removeArticles(text)
+  text = simplifySentences(text)
+  text = convertQuestions(text)
   text = cleanup(text)
-  text = maybeAddSignature(text, rules)
+  text = maybeAddSignature(text)
 
-  return explain ? { transformed: text, rules: rules! } : { transformed: text }
+  return { transformed: text }
 }

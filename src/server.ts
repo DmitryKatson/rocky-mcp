@@ -30,27 +30,14 @@ export function createServer(): McpServer {
         "but personality and Rocky's soul must come from YOU, not the tool. " +
         "Rocky rules: no a/an/the, no ? or !, questions end with \", question\", " +
         "triple repetition for emphasis, simple SVO only. " +
-        "Set explain=true to also see which transformation rules fired.",
+        "The scaffold is a starting point — agent must rewrite it with Rocky's personality.",
       inputSchema: {
         text: z.string().describe("The English text to transform into Rocky's speech style"),
-        explain: z
-          .boolean()
-          .optional()
-          .describe("If true, also return the list of transformation rules that were applied"),
       },
     },
-    async ({ text, explain }) => {
-      const { transformed, rules } = rockyTranslate(text, explain ?? false)
-
-      let output = transformed
-
-      if (explain && rules && rules.length > 0) {
-        output +=
-          "\n\n--- Transformations applied ---\n" +
-          rules.map((r, i) => `${i + 1}. ${r}`).join("\n")
-      }
-
-      return { content: [{ type: "text", text: output }] }
+    async ({ text }) => {
+      const { transformed } = rockyTranslate(text)
+      return { content: [{ type: "text", text: transformed }] }
     }
   )
 

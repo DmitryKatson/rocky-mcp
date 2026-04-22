@@ -27,22 +27,11 @@ Transforms any English text into Rocky's speech style.
 
 **Parameters:**
 - `text` *(string)* — the text to transform
-- `explain` *(boolean, optional)* — if `true`, also returns a list of which rules fired
 
 **Example:**
 ```
 Input:  "The deployment failed again. I am very frustrated."
 Output: "Deployment failed again. Am much much not good."
-```
-
-With `explain: true`:
-```
-Deployment failed again. Am much much not good.
-
---- Transformations applied ---
-1. Phrase substitution: "I am" → "Am"
-2. Phrase substitution: "very" → "much"
-3. Removed 1 article(s) ("the")
 ```
 
 ### `rocky_prompt`
