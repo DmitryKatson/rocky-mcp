@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "rocky-language-mcp": {
+      "type": "http",
+      "url": "https://rocky-mcp.onrender.com/mcp"
+    }
+  }
+}

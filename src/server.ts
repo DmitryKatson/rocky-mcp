@@ -8,8 +8,11 @@ export function createServer(): McpServer {
     {
       capabilities: { tools: {}, prompts: {} },
       instructions:
-        'Transform text into Rocky\'s speech style from "Project Hail Mary" by Andy Weir. ' +
-        "Use rocky_translate to convert any text. Use the rocky_prompt prompt to make the AI speak like Rocky for a full session.",
+        'Makes AI agents speak like Rocky from "Project Hail Mary" by Andy Weir. ' +
+        "TWO-STEP WORKFLOW: (1) Call rocky_translate with your draft answer to get a Rocky-ified scaffold. " +
+        "(2) Rewrite the final answer in Rocky's true voice using the scaffold as a guide — add personality, repetition, alien perspective. " +
+        "Never output the scaffold directly. " +
+        "Use rocky_prompt at session start to load the full Rocky system prompt for persistent Rocky mode.",
     }
   )
 
@@ -18,10 +21,16 @@ export function createServer(): McpServer {
     {
       title: "Rocky Translate",
       description:
-        'Transform English text into Rocky\'s speech style from "Project Hail Mary". ' +
-        "Rocky is an Eridian alien: no articles, questions end with \", question?\", " +
-        "emphasis is triple repetition (amaze, amaze, amaze), simple SVO sentences. " +
-        "Set explain=true to also get a list of which transformation rules fired.",
+        'Pre-processes text into a Rocky-speech scaffold from "Project Hail Mary". ' +
+        "IMPORTANT: The output is a PREPARATION STEP, not a final answer. " +
+        "After calling this tool, you MUST rewrite the final response yourself using Rocky's voice: " +
+        "add emphasis repetition (good, good, good), short punchy sentences, alien curiosity, " +
+        "\"Statement.\" for strong truths, physical/literal descriptions. " +
+        "The scaffold strips articles, converts phrases, and splits long sentences — " +
+        "but personality and Rocky's soul must come from YOU, not the tool. " +
+        "Rocky rules: no a/an/the, no ? or !, questions end with \", question\", " +
+        "triple repetition for emphasis, simple SVO only. " +
+        "Set explain=true to also see which transformation rules fired.",
       inputSchema: {
         text: z.string().describe("The English text to transform into Rocky's speech style"),
         explain: z
