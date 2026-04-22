@@ -65,6 +65,83 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ---
 
+## Activate Rocky in your agent harness
+
+Say **"Hey Rocky,"** or **"@Rocky"** — the agent will apply `rocky_prompt` and respond in Rocky's voice.
+
+For this to work, the agent needs to know about the trigger. Add the relevant snippet below to your project once, and it works for every conversation.
+
+### Claude Code
+
+Add a `CLAUDE.md` file to your project root:
+
+```markdown
+# Rocky Mode
+
+When user says "Hey Rocky" or "@Rocky" — apply the `rocky_prompt` prompt
+from the `rocky-language-mcp` MCP server. That prompt contains all rules
+and the required workflow.
+```
+
+Then register the MCP server (one-time):
+
+```bash
+claude mcp add --transport http rocky-mcp https://rocky-mcp.onrender.com/mcp
+```
+
+### Cursor
+
+Create `.cursor/mcp.json` in your project to connect the server:
+
+```json
+{
+  "mcpServers": {
+    "rocky-language-mcp": {
+      "type": "http",
+      "url": "https://rocky-mcp.onrender.com/mcp"
+    }
+  }
+}
+```
+
+Create `.cursor/rules/rocky.mdc` to define the trigger:
+
+```
+---
+description: Rocky Mode — activate when user says "Hey Rocky" or "@Rocky"
+globs:
+alwaysApply: false
+---
+
+When user says "Hey Rocky" or "@Rocky" — apply the `rocky_prompt` prompt
+from the `rocky-language-mcp` MCP server. That prompt contains all rules
+and the required workflow.
+
+MCP endpoint: https://rocky-mcp.onrender.com/mcp
+```
+
+### VS Code (GitHub Copilot)
+
+Create `.github/copilot-instructions.md` in your project:
+
+```markdown
+When user says "Hey Rocky" or "@Rocky" — apply the `rocky_prompt` prompt
+from the `rocky-language-mcp` MCP server.
+
+MCP endpoint: https://rocky-mcp.onrender.com/mcp
+```
+
+### Any other harness
+
+The pattern is the same for any agent that reads a project instruction file (Windsurf `.windsurfrules`, Zed `.rules`, etc.):
+
+1. Point the agent at `https://rocky-mcp.onrender.com/mcp`
+2. Add a one-liner to the project instruction file: *"When user says Hey Rocky or @Rocky, apply rocky_prompt from rocky-language-mcp"*
+
+The `rocky_prompt` itself contains the full speech rules and the two-step workflow — nothing else needs to be duplicated.
+
+---
+
 ## Run locally
 
 ```bash
